@@ -29,8 +29,10 @@ export const MapView = ({
   posts = [],
   selectedId = null,
   onSelect = () => {},
+  onFlag = null,
   onPick = null,
   pickMarker = null,
+  rangePoints = null,
   height = 480,
 }) => {
   const ref = useRef(null);
@@ -79,6 +81,7 @@ export const MapView = ({
         const { left, top } = project(p.latitude, p.longitude);
         const c = scoreColor(p.score);
         const isSel = selectedId === p.id;
+        const disputed = (p.flags || 0) > 0;
         return (
           <button
             key={p.id}
@@ -87,22 +90,65 @@ export const MapView = ({
               e.stopPropagation();
               onSelect(p);
             }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onFlag) onFlag(p);
+            }}
             className="absolute z-10"
             style={{ left: `${left}%`, top: `${top}%`, transform: "translate(-50%,-50%)" }}
-            title={`${p.location_name} — ${p.score}`}
+            title={disputed ? `${p.location_name} — ${p.score} · disputed (${p.flags})` : `${p.location_name} — ${p.score} · right-click to flag`}
           >
             <span
               className="block rounded-full"
+              data-testid={disputed ? "map-pin-disputed" : undefined}
               style={{
                 width: isSel ? 20 : 14,
                 height: isSel ? 20 : 14,
-                background: c,
-                border: "2px solid rgba(6,12,9,0.95)",
-                boxShadow: `0 0 0 4px ${c}33, 0 0 16px ${c}`,
+                background: disputed
+                  ? `repeating-linear-gradient(45deg, ${c}, ${c} 3px, #070E0B 3px, #070E0B 6px)`
+                  : c,
+                border: disputed ? "2px solid #FBBF24" : "2px solid rgba(6,12,9,0.95)",
+                boxShadow: disputed
+                  ? `0 0 0 4px rgba(251,191,36,0.25), 0 0 16px ${c}`
+                  : `0 0 0 4px ${c}33, 0 0 16px ${c}`,
                 animation: "pin-pulse 2.4s ease-in-out infinite",
               }}
             />
           </button>
+        );
+      })}
+
+      {(rangePoints || []).map((pt, i) => {
+        const { left, top } = project(pt.latitude, pt.longitude);
+        return (
+          <div
+            key={i}
+            className="absolute z-10 group"
+            style={{ left: `${left}%`, top: `${top}%`, transform: "translate(-50%,-50%)" }}
+          >
+            <span
+              className="block"
+              style={{
+                width: 14,
+                height: 14,
+                background: "var(--emerald-bright)",
+                borderRadius: 3,
+                transform: "rotate(45deg)",
+                border: "2px solid rgba(6,12,9,0.95)",
+                boxShadow: "0 0 0 5px rgba(52,211,153,0.18), 0 0 16px rgba(52,211,153,0.9)",
+                animation: "pin-pulse 2.6s ease-in-out infinite",
+              }}
+            />
+            {pt.region && (
+              <span
+                className="absolute left-1/2 -translate-x-1/2 -top-7 whitespace-nowrap px-2 py-0.5 rounded text-[9px] opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: "rgba(7,14,11,0.9)", color: "var(--emerald-light)", border: "1px solid var(--border-subtle)" }}
+              >
+                {pt.region}
+              </span>
+            )}
+          </div>
         );
       })}
 

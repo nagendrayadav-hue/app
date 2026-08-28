@@ -6,6 +6,7 @@ import { Camera, Save, Loader2, MapPin, Leaf } from "lucide-react";
 import { HabitatScoreGauge } from "@/components/HabitatScoreGauge";
 import { MapView } from "@/components/MapView";
 import { scoreLabel, scoreColor } from "@/lib/score";
+import { MEDIA } from "@/lib/media";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -75,7 +76,7 @@ export const HabitatUploadTab = ({ onSaved }) => {
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       {/* Left: dropzone */}
-      <div className="glass rounded-2xl p-6 sm:p-8">
+      <div className="glass card-glow rounded-2xl p-6 sm:p-8">
         <p className="subheading text-xs uppercase tracking-[0.25em] mb-2 font-accent" style={{ color: "var(--emerald-bright)" }}>Habitat Photo</p>
         <h2 className="font-display text-3xl mb-6" style={{ color: "var(--sand-warm)" }}>Upload & Assess</h2>
 
@@ -93,7 +94,7 @@ export const HabitatUploadTab = ({ onSaved }) => {
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]); }}
           className="relative rounded-xl overflow-hidden cursor-pointer transition-colors duration-200 flex items-center justify-center"
-          style={{ minHeight: 300, border: "1.5px dashed rgba(230,213,184,0.25)", background: "rgba(7,14,11,0.4)" }}
+          style={{ minHeight: 300, border: "1.5px dashed rgba(230,213,184,0.25)", backgroundImage: `linear-gradient(rgba(7,14,11,0.78), rgba(7,14,11,0.88)), url(${MEDIA.canopyAerial})`, backgroundSize: "cover", backgroundPosition: "center" }}
         >
           {image ? (
             <>
@@ -121,13 +122,16 @@ export const HabitatUploadTab = ({ onSaved }) => {
       </div>
 
       {/* Right: results */}
-      <div className="glass rounded-2xl p-6 sm:p-8">
+      <div className="glass card-glow rounded-2xl p-6 sm:p-8">
         {!result ? (
-          <div className="h-full flex flex-col items-center justify-center text-center gap-3 py-16">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid var(--border-subtle)" }}>
-              <Leaf size={26} color="var(--text-muted)" />
+          <div className="h-full relative flex flex-col items-center justify-center text-center gap-3 py-16 rounded-xl overflow-hidden">
+            <div className="absolute inset-0" style={{ backgroundImage: `url(${MEDIA.forestDark})`, backgroundSize: "cover", backgroundPosition: "center", opacity: 0.35 }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(7,14,11,0.95), rgba(7,14,11,0.55))" }} />
+            <div className="relative w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid var(--border-subtle)", backdropFilter: "blur(4px)" }}>
+              <Leaf size={26} color="var(--emerald-bright)" />
             </div>
-            <p className="font-body" style={{ color: "var(--text-muted)" }}>AI health assessment will appear here</p>
+            <p className="relative prose-notable" style={{ color: "var(--sand-warm)" }}>AI health assessment will appear here</p>
+            <p className="relative text-xs" style={{ color: "var(--text-muted)" }}>Upload a habitat photo to begin</p>
           </div>
         ) : (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -156,7 +160,35 @@ export const HabitatUploadTab = ({ onSaved }) => {
 
             <div className="flex items-center gap-2 mb-2 text-xs font-mono" style={{ color: coords ? "var(--emerald-bright)" : "var(--text-muted)" }}>
               <MapPin size={13} />
-              {coords ? `${coords.latitude.toFixed(3)}, ${coords.longitude.toFixed(3)}` : "Click map to set location"}
+              {coords ? `${coords.latitude.toFixed(3)}, ${coords.longitude.toFixed(3)}` : "Enter coordinates or click the map"}
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input
+                data-testid="habitat-lat-input"
+                type="number"
+                step="0.0001"
+                value={coords?.latitude ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCoords((c) => ({ latitude: v === "" ? 0 : parseFloat(v), longitude: c?.longitude ?? 0 }));
+                }}
+                placeholder="Latitude"
+                className="w-full px-3 py-2 rounded-lg font-mono text-xs outline-none"
+                style={{ background: "rgba(7,14,11,0.5)", border: "1px solid var(--border-subtle)", color: "var(--sand-warm)" }}
+              />
+              <input
+                data-testid="habitat-lng-input"
+                type="number"
+                step="0.0001"
+                value={coords?.longitude ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCoords((c) => ({ latitude: c?.latitude ?? 0, longitude: v === "" ? 0 : parseFloat(v) }));
+                }}
+                placeholder="Longitude"
+                className="w-full px-3 py-2 rounded-lg font-mono text-xs outline-none"
+                style={{ background: "rgba(7,14,11,0.5)", border: "1px solid var(--border-subtle)", color: "var(--sand-warm)" }}
+              />
             </div>
             <MapView posts={[]} onPick={setCoords} pickMarker={coords} height={180} />
 

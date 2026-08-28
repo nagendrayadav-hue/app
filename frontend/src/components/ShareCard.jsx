@@ -3,9 +3,10 @@ import { scoreColor, scoreLabel } from "@/lib/score";
 
 // A fixed-size shareable card rendered off-screen and rasterized with html2canvas.
 // Avoids external map tiles (CORS taint); the mini-map is drawn with CSS.
-export const ShareCard = React.forwardRef(({ post }, ref) => {
+export const ShareCard = React.forwardRef(({ post, imageOverride }, ref) => {
   if (!post) return null;
   const c = scoreColor(post.score);
+  const imgSrc = imageOverride || post.image_base64;
   // position pin inside the mini map panel (approx equirectangular)
   const left = ((post.longitude + 180) / 360) * 100;
   const top = ((90 - post.latitude) / 180) * 100;
@@ -26,7 +27,7 @@ export const ShareCard = React.forwardRef(({ post }, ref) => {
     >
       <div style={{ position: "relative", height: 300 }}>
         <img
-          src={post.image_base64}
+          src={imgSrc}
           alt=""
           crossOrigin="anonymous"
           style={{ width: "100%", height: 300, objectFit: "cover", display: "block" }}

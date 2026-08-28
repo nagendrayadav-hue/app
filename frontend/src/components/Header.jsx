@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Leaf } from "lucide-react";
+import { Leaf, LogOut } from "lucide-react";
 
 const tabs = [
   { id: "upload", label: "Upload", testid: "nav-tab-upload" },
@@ -9,7 +9,7 @@ const tabs = [
   { id: "animal", label: "Animal", testid: "nav-tab-animal" },
 ];
 
-export const Header = ({ active, onChange }) => {
+export const Header = ({ active, onChange, onLogout }) => {
   return (
     <header className="sticky top-0 z-50 glass border-b" style={{ borderColor: "var(--border-subtle)" }}>
       <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
@@ -27,6 +27,7 @@ export const Header = ({ active, onChange }) => {
           </div>
         </div>
 
+        <div className="flex items-center gap-3">
         <nav className="relative flex items-center gap-1 p-1 rounded-full" style={{ background: "rgba(7,14,11,0.6)", border: "1px solid var(--border-subtle)" }}>
           {tabs.map((t) => (
             <button
@@ -48,6 +49,16 @@ export const Header = ({ active, onChange }) => {
             </button>
           ))}
         </nav>
+        <button
+          data-testid="logout-button"
+          onClick={onLogout}
+          title="Sign out"
+          className="w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200"
+          style={{ background: "rgba(7,14,11,0.6)", border: "1px solid var(--border-subtle)", color: "var(--text-muted)" }}
+        >
+          <LogOut size={15} />
+        </button>
+        </div>
       </div>
     </header>
   );

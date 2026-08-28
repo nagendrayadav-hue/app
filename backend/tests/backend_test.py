@@ -144,7 +144,55 @@ def test_animal_analyze_success(animal_img):
     r = requests.post(f"{API}/animal/analyze", json={"image_base64": animal_img}, timeout=90)
     assert r.status_code == 200, r.text
     d = r.json()
-    for k in ("species", "scientific_name", "conservation_status", "habitat_loss_summary", "threats"):
+    for k in ("species", "scientific_name", "conservation_status", "habitat_loss_summary", "threats", "range_summary", "native_range"):
         assert k in d, f"missing {k}"
     assert isinstance(d["threats"], list)
+    assert isinstance(d["native_range"], list)
     assert isinstance(d["species"], str) and len(d["species"]) > 0
+
+
+# ---------- Auth ----------
+def test_auth_login_success():
+    r = requests.post(f"{API}/auth/login", json={"email": "ranger@biodash.app", "password": "wildlife123"})
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert "token" in d and isinstance(d["token"], str) and len(d["token"]) > 20
+    assert d["user"]["email"] == "ranger@biodash.app"
+    return d["token"]
+
+
+def test_auth_login_wrong_password():
+    r = requests.post(f"{API}/auth/login", json={"email": "ranger@biodash.app", "password": "wrong"})
+    assert r.status_code == 401
+
+
+def test_auth_me_valid():
+    tok = requests.post(f"{API}/auth/login", json={"email": "ranger@biodash.app", "password": "wildlife123"}).json()["token"]
+    r = requests.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {tok}"})
+    assert r.status_code == 200
+    assert r.json()["email"] == "ranger@biodash.app"
+
+
+def test_auth_me_missing():
+    r = requests.get(f"{API}/auth/me")
+    assert r.status_code == 401
+
+
+def test_auth_me_invalid():
+    r = requests.get(f"{API}/auth/me", headers={"Authorization": "Bearer invalid.token.here"})
+    assert r.status_code == 401
+
+
+# ---------- Image Proxy ----------
+def test_image_proxy_unsplash():
+    url = "https://images.unsplash.com/photo-1619476266550-bc9f04e57952?crop=entropy&cs=srgb&fm=jpg&q=85&w=400"
+    r = requests.get(f"{API}/image-proxy", params={"url": url}, timeout=30)
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert "data_url" in d
+    assert d["data_url"].startswith("data:image")
+
+
+def test_image_proxy_invalid_url():
+    r = requests.get(f"{API}/image-proxy", params={"url": "not-a-url"})
+    assert r.status_code == 400

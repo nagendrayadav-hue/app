@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import axios from "axios";
 import html2canvas from "html2canvas";
-import { X, Trash2, MapPin, Share2, Loader2 } from "lucide-react";
+import { X, Trash2, MapPin, Share2, Loader2, Flag } from "lucide-react";
 import { MapView } from "@/components/MapView";
 import { ShareCard } from "@/components/ShareCard";
 import { scoreColor, scoreLabel, scoreTier } from "@/lib/score";
@@ -21,6 +21,8 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
   const [sharing, setSharing] = useState(false);
+  const [snapshotUrl, setSnapshotUrl] = useState(null);
+  const [shareImg, setShareImg] = useState(null);
   const cardRef = useRef(null);
 
   const filtered = useMemo(
@@ -29,42 +31,61 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
   );
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") setSelected(null); };
+    const onKey = (e) => { if (e.key === "Escape") { setSnapshotUrl(null); setSelected(null); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const shareSnapshot = async () => {
-    if (!cardRef.current) return;
+    if (!selected) return;
     setSharing(true);
     try {
-      await new Promise((r) => setTimeout(r, 120));
+      // Ensure the card image is a same-origin data URL to avoid canvas tainting
+      let imgData = selected.image_base64;
+      if (!imgData.startsWith("data:")) {
+        try {
+          const { data } = await axios.get(`${API}/image-proxy`, { params: { url: imgData } });
+          imgData = data.data_url;
+        } catch {
+          /* fall back to original url */
+        }
+      }
+      setShareImg(imgData);
+      await new Promise((r) => setTimeout(r, 350)); // let the off-screen card image load
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: "#070E0B",
         scale: 2,
         useCORS: true,
         logging: false,
       });
-      const dataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], `biodash-${selected.location_name.replace(/\s+/g, "-")}.png`, { type: "image/png" });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "BioDash habitat", text: `${selected.location_name} — score ${selected.score}` });
-        toast.success("Snapshot shared");
-      } else {
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = file.name;
-        a.click();
-        toast.success("Snapshot downloaded");
-      }
+      setSnapshotUrl(canvas.toDataURL("image/png"));
     } catch (e) {
       console.error("share snapshot failed", e);
       toast.error("Could not create snapshot");
     } finally {
       setSharing(false);
     }
+  };
+
+  const downloadSnapshot = async () => {
+    if (!snapshotUrl) return;
+    const name = `biodash-${selected.location_name.replace(/\s+/g, "-")}.png`;
+    try {
+      const blob = await (await fetch(snapshotUrl)).blob();
+      const file = new File([blob], name, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "BioDash habitat", text: `${selected.location_name} — score ${selected.score}` });
+        toast.success("Snapshot shared");
+        return;
+      }
+    } catch {
+      /* fall through to download */
+    }
+    const a = document.createElement("a");
+    a.href = snapshotUrl;
+    a.download = name;
+    a.click();
+    toast.success("Snapshot downloaded");
   };
 
   const remove = async (id) => {
@@ -75,6 +96,22 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
       onChanged && onChanged();
     } catch {
       toast.error("Could not remove post");
+    }
+  };
+
+  const flagPost = async (post) => {
+    try {
+      const { data } = await axios.post(`${API}/habitat/posts/${post.id}/flag`);
+      if (data.removed) {
+        toast.error(`"${post.location_name}" removed after ${data.flags} dispute reports`);
+        setSelected(null);
+      } else {
+        toast.warning(`Flagged as disputed — ${data.flags}/${data.threshold} reports`);
+        setSelected((s) => (s && s.id === post.id ? { ...s, flags: data.flags } : s));
+      }
+      onChanged && onChanged();
+    } catch {
+      toast.error("Could not flag post");
     }
   };
 
@@ -106,11 +143,12 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <div className="glass rounded-2xl p-4">
-          <MapView posts={filtered} selectedId={selected?.id} onSelect={setSelected} height={520} />
+          <MapView posts={filtered} selectedId={selected?.id} onSelect={setSelected} onFlag={flagPost} height={520} />
           <div className="flex items-center gap-5 mt-4 px-2 text-xs font-mono" style={{ color: "var(--text-muted)" }}>
             <Legend color="#10B981" label="Healthy 70-100" />
             <Legend color="#F59E0B" label="At Risk 40-69" />
             <Legend color="#EF4444" label="Critical 0-39" />
+            <span className="hidden sm:inline" style={{ color: "var(--text-muted)", opacity: 0.7 }}>· right-click a pin to flag disputed</span>
           </div>
         </div>
 
@@ -131,7 +169,14 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
                 <div className="min-w-0 flex-1">
                   <p className="font-body text-sm truncate" style={{ color: "var(--sand-warm)" }}>{p.location_name}</p>
                   <p className="text-xs truncate mb-1" style={{ color: "var(--text-muted)" }}>{p.ecosystem}</p>
-                  <span className="text-xs font-accent" style={{ color: scoreColor(p.score) }}>{p.score} · {scoreLabel(p.score)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-accent" style={{ color: scoreColor(p.score) }}>{p.score} · {scoreLabel(p.score)}</span>
+                    {(p.flags || 0) > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-full font-accent uppercase" style={{ background: "rgba(251,191,36,0.15)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.4)" }}>
+                        <Flag size={9} /> {p.flags}/6
+                      </span>
+                    )}
+                  </div>
                 </div>
               </button>
             ))}
@@ -170,7 +215,12 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
                   <MapPin size={12} /> {selected.latitude.toFixed(3)}, {selected.longitude.toFixed(3)} · {selected.ecosystem}
                 </div>
                 <p className="prose-notable mb-5" style={{ color: "var(--text-secondary)" }}>{selected.summary}</p>
-                <div className="flex gap-3">
+                {(selected.flags || 0) > 0 && (
+                  <div className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.35)" }}>
+                    <Flag size={13} /> Disputed entry · {selected.flags}/6 reports (auto-removed at 6)
+                  </div>
+                )}
+                <div className="flex gap-3 mb-3">
                   <button
                     data-testid="post-share-button"
                     onClick={shareSnapshot}
@@ -188,13 +238,53 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
                     <Trash2 size={14} /> Delete
                   </button>
                 </div>
+                <button
+                  data-testid="post-flag-button"
+                  onClick={() => flagPost(selected)}
+                  className="w-full py-2.5 rounded-xl font-accent uppercase text-xs flex items-center justify-center gap-2 transition-colors duration-200"
+                  style={{ background: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.35)" }}
+                >
+                  <Flag size={14} /> Flag as Disputed
+                </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <ShareCard ref={cardRef} post={selected} />
+      <AnimatePresence>
+        {snapshotUrl && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+            style={{ background: "rgba(7,14,11,0.9)", backdropFilter: "blur(8px)" }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setSnapshotUrl(null)}
+            data-testid="snapshot-preview"
+          >
+            <motion.div
+              initial={{ scale: 0.94, y: 12 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.94, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass rounded-2xl p-5 max-w-md w-full"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs uppercase tracking-[0.2em] font-accent" style={{ color: "var(--emerald-bright)" }}>Your Snapshot</p>
+                <button onClick={() => setSnapshotUrl(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(7,14,11,0.7)", color: "var(--sand-warm)" }}><X size={16} /></button>
+              </div>
+              <img src={snapshotUrl} alt="snapshot" className="w-full rounded-xl mb-4" style={{ border: "1px solid var(--border-subtle)" }} />
+              <button
+                data-testid="snapshot-download-button"
+                onClick={downloadSnapshot}
+                className="w-full py-3 rounded-xl font-accent uppercase text-sm flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02]"
+                style={{ background: "var(--emerald-bright)", color: "var(--bg-primary)" }}
+              >
+                <Share2 size={15} /> Download / Share
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <ShareCard ref={cardRef} post={selected} imageOverride={shareImg} />
     </div>
   );
 };

@@ -2,7 +2,9 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Camera, Loader2, ScanSearch, AlertTriangle, Fingerprint } from "lucide-react";
+import { Camera, Loader2, ScanSearch, AlertTriangle, Fingerprint, Globe2 } from "lucide-react";
+import { MapView } from "@/components/MapView";
+import { MEDIA } from "@/lib/media";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -44,7 +46,7 @@ export const AnimalIdentifyTab = () => {
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass rounded-2xl p-6 sm:p-8">
+      <div className="glass card-glow rounded-2xl p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.25em] font-accent mb-2" style={{ color: "var(--emerald-bright)" }}>Species Scan</p>
         <h2 className="font-display text-3xl mb-6" style={{ color: "var(--sand-warm)" }}>Identify Wildlife</h2>
 
@@ -55,7 +57,7 @@ export const AnimalIdentifyTab = () => {
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]); }}
           className="relative rounded-xl overflow-hidden cursor-pointer flex items-center justify-center"
-          style={{ minHeight: 320, border: "1.5px dashed rgba(230,213,184,0.25)", background: "rgba(7,14,11,0.4)" }}
+          style={{ minHeight: 320, border: "1.5px dashed rgba(230,213,184,0.25)", backgroundImage: `linear-gradient(rgba(7,14,11,0.78), rgba(7,14,11,0.88)), url(${MEDIA.wildlifeDark})`, backgroundSize: "cover", backgroundPosition: "center" }}
         >
           {image ? (
             <>
@@ -82,13 +84,16 @@ export const AnimalIdentifyTab = () => {
         </button>
       </div>
 
-      <div className="glass rounded-2xl p-6 sm:p-8">
+      <div className="glass card-glow rounded-2xl p-6 sm:p-8">
         {!result ? (
-          <div className="h-full flex flex-col items-center justify-center text-center gap-3 py-16">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid var(--border-subtle)" }}>
-              <Fingerprint size={26} color="var(--text-muted)" />
+          <div className="h-full relative flex flex-col items-center justify-center text-center gap-3 py-16 rounded-xl overflow-hidden">
+            <div className="absolute inset-0" style={{ backgroundImage: `url(${MEDIA.wildlifeDark})`, backgroundSize: "cover", backgroundPosition: "center", opacity: 0.4 }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(7,14,11,0.95), rgba(7,14,11,0.5))" }} />
+            <div className="relative w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid var(--border-subtle)", backdropFilter: "blur(4px)" }}>
+              <Fingerprint size={26} color="var(--emerald-bright)" />
             </div>
-            <p className="font-body" style={{ color: "var(--text-muted)" }}>Species identification will appear here</p>
+            <p className="relative prose-notable" style={{ color: "var(--sand-warm)" }}>Species identification will appear here</p>
+            <p className="relative text-xs" style={{ color: "var(--text-muted)" }}>Upload an animal photo to scan</p>
           </div>
         ) : (
           <motion.div data-testid="animal-result-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -110,11 +115,27 @@ export const AnimalIdentifyTab = () => {
                   {result.threats.map((t, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-2.5 rounded-lg" style={{ background: "rgba(7,14,11,0.4)", border: "1px solid var(--border-subtle)" }}>
                       <AlertTriangle size={15} color="#F59E0B" className="flex-shrink-0" />
-                      <span className="font-body text-sm" style={{ color: "var(--text-secondary)" }}>{t}</span>
+                      <span className="prose-notable" style={{ color: "var(--text-secondary)" }}>{t}</span>
                     </div>
                   ))}
                 </div>
               </>
+            )}
+
+            {result.native_range?.length > 0 && (
+              <div className="mt-6" data-testid="animal-range-window">
+                <div className="flex items-center gap-2 mb-2" style={{ color: "var(--emerald-bright)" }}>
+                  <Globe2 size={15} />
+                  <p className="text-xs uppercase tracking-[0.2em] font-accent">View Range</p>
+                </div>
+                {result.range_summary && (
+                  <p className="prose-notable mb-3" style={{ color: "var(--text-muted)" }}>{result.range_summary}</p>
+                )}
+                <MapView rangePoints={result.native_range} height={200} />
+                <p className="mt-2 text-[10px]" style={{ color: "var(--text-muted)" }}>
+                  {result.native_range.length} range markers · hover for regions
+                </p>
+              </div>
             )}
           </motion.div>
         )}
