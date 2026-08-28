@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import axios from "axios";
-import { X, Trash2, MapPin } from "lucide-react";
+import html2canvas from "html2canvas";
+import { X, Trash2, MapPin, Share2, Loader2 } from "lucide-react";
 import { MapView } from "@/components/MapView";
+import { ShareCard } from "@/components/ShareCard";
 import { scoreColor, scoreLabel, scoreTier } from "@/lib/score";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -18,6 +20,8 @@ const FILTERS = [
 export const HabitatMapTab = ({ posts, onChanged }) => {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const cardRef = useRef(null);
 
   const filtered = useMemo(
     () => (filter === "all" ? posts : posts.filter((p) => scoreTier(p.score) === filter)),
@@ -29,6 +33,39 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  const shareSnapshot = async () => {
+    if (!cardRef.current) return;
+    setSharing(true);
+    try {
+      await new Promise((r) => setTimeout(r, 120));
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: "#070E0B",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const dataUrl = canvas.toDataURL("image/png");
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `biodash-${selected.location_name.replace(/\s+/g, "-")}.png`, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "BioDash habitat", text: `${selected.location_name} — score ${selected.score}` });
+        toast.success("Snapshot shared");
+      } else {
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = file.name;
+        a.click();
+        toast.success("Snapshot downloaded");
+      }
+    } catch (e) {
+      console.error("share snapshot failed", e);
+      toast.error("Could not create snapshot");
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const remove = async (id) => {
     try {
@@ -132,19 +169,32 @@ export const HabitatMapTab = ({ posts, onChanged }) => {
                 <div className="flex items-center gap-1.5 text-xs font-mono mb-4" style={{ color: "var(--text-muted)" }}>
                   <MapPin size={12} /> {selected.latitude.toFixed(3)}, {selected.longitude.toFixed(3)} · {selected.ecosystem}
                 </div>
-                <p className="font-body leading-relaxed mb-5" style={{ color: "var(--text-secondary)" }}>{selected.summary}</p>
-                <button
-                  onClick={() => remove(selected.id)}
-                  className="w-full py-2.5 rounded-xl font-accent uppercase text-xs flex items-center justify-center gap-2 transition-colors duration-200"
-                  style={{ background: "rgba(153,27,27,0.2)", color: "#FCA5A5", border: "1px solid rgba(153,27,27,0.5)" }}
-                >
-                  <Trash2 size={14} /> Delete Post
-                </button>
+                <p className="prose-notable mb-5" style={{ color: "var(--text-secondary)" }}>{selected.summary}</p>
+                <div className="flex gap-3">
+                  <button
+                    data-testid="post-share-button"
+                    onClick={shareSnapshot}
+                    disabled={sharing}
+                    className="flex-1 py-2.5 rounded-xl font-accent uppercase text-xs flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02] disabled:opacity-50"
+                    style={{ background: "var(--emerald)", color: "var(--bg-primary)" }}
+                  >
+                    {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />} Share
+                  </button>
+                  <button
+                    onClick={() => remove(selected.id)}
+                    className="flex-1 py-2.5 rounded-xl font-accent uppercase text-xs flex items-center justify-center gap-2 transition-colors duration-200"
+                    style={{ background: "rgba(153,27,27,0.2)", color: "#FCA5A5", border: "1px solid rgba(153,27,27,0.5)" }}
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ShareCard ref={cardRef} post={selected} />
     </div>
   );
 };

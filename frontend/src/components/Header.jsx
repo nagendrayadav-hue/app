@@ -5,6 +5,7 @@ import { Leaf } from "lucide-react";
 const tabs = [
   { id: "upload", label: "Upload", testid: "nav-tab-upload" },
   { id: "map", label: "Map", testid: "nav-tab-map" },
+  { id: "insights", label: "Insights", testid: "nav-tab-insights" },
   { id: "animal", label: "Animal", testid: "nav-tab-animal" },
 ];
 

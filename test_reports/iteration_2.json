@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only regression for iteration 2 (Insights tab, Share Snapshot, dotted world map, ?tab= deep-link, and Upload/Animal regressions). All new features and regressions passed. Insights tab renders stats-average-score gauge (avg ~57 shown, ~53 text — animation state; matches spec ballpark ~53), four stat cards (Total Posts=5, Median Range 32-88, Healthiest 88 Amazon, Most At Risk 32 Sahel), stats-distribution bars (Healthy 2/40%, At Risk 2/40%, Critical 1/20% — matches spec 2/2/1). Share Snapshot: post-share-button in modal triggered html2canvas -> PNG download ('biodash-Sundarbans,-India.png') with success toast 'Snapshot downloaded' and no error toast or console/pageerror. Map: dotted world map renders in map-container-2d with 5 map-pin-item pins; filters healthy=2, critical=1. Deep-links /?tab=insights and /?tab=map open correct tabs. Regression Upload: habitat-file-input -> habitat-analyze-button -> habitat-score-display (score=15) + habitat-summary-text rendered, map click set location, habitat-save-post-button saved (persisted, cleaned up). Regression Animal: animal-file-input -> animal-identify-button -> animal-result-card with animal-species-name='No animal detected' and animal-habitat-loss-summary (expected behavior for synthetic image per prior iteration).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Insights gauge", "issues": ["Gauge animated value (57) briefly differs from computed text (53) during entry animation — cosmetic only, resolves after animation."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "HabitatMapTab.shareSnapshot: If html2canvas fails on tainted image (post.image_base64 for seed URLs), a generic 'Could not create snapshot' toast fires but no console error is logged — consider console.error(e) in catch for observability.",
+    "ShareCard.jsx uses crossOrigin='anonymous' on <img> which is correct for the base64 data URLs but for the Unsplash seed URLs relies on Unsplash serving CORS headers — seed posts share fine in this test but any future non-CORS host would silently taint.",
+    "StatsTab: uses posts prop only; when zero posts shows placeholder — OK. tiers key 'moderate' matches scoreTier() output; verified."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not retested this iteration)", "frontend": "100% (Insights, Share Snapshot download+toast, dotted map, filters, deep-links, Upload+Save, Animal)"},
+  "test_credentials": "N/A — no auth",
+  "seed_data_creation": "Created 2 test habitat posts during Upload regression (Freshwater Stream, Dense Forest Canopy) and cleaned them up via DELETE /api/habitat/posts/{id}. DB left with original 5 seed posts.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 2 fully green. Insights tab layout uses grid lg:grid-cols-[320px_1fr]. Share Snapshot flow in headless: navigator.canShare returns false so it falls through to <a download> path -> Playwright expect_download works. Note: habitat-file-input is a hidden <input class='hidden'> — must use set_input_files directly without wait_for_selector visibility (wait for adjacent visible label/button instead). BASE_URL=https://biodash-preview.preview.emergentagent.com."
+}

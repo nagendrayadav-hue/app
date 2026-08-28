@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Notable&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;700;800;900&display=swap');
 
 :root {
     --bg-primary: #070E0B;
@@ -32,7 +32,7 @@ body {
     margin: 0;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Notable', 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -42,12 +42,22 @@ body {
 }
 
 .font-accent {
-    font-family: 'LemonMilk', 'Outfit', system-ui, sans-serif;
-    letter-spacing: 0.02em;
+    font-family: 'Notable', 'Outfit', system-ui, sans-serif;
+    letter-spacing: 0.04em;
 }
 
 .font-body {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Notable', 'Outfit', system-ui, sans-serif;
+    letter-spacing: 0.01em;
+}
+
+/* Notable is a heavy display face; relax long-form paragraphs for legibility */
+.prose-notable {
+    font-family: 'Notable', 'Outfit', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.85;
+    letter-spacing: 0.005em;
+    font-size: 0.82rem;
 }
 
 .font-mono {

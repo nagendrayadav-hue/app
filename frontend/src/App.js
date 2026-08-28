@@ -7,11 +7,13 @@ import { Header } from "@/components/Header";
 import { HabitatUploadTab } from "@/components/HabitatUploadTab";
 import { HabitatMapTab } from "@/components/HabitatMapTab";
 import { AnimalIdentifyTab } from "@/components/AnimalIdentifyTab";
+import { StatsTab } from "@/components/StatsTab";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 function App() {
-  const [tab, setTab] = useState("upload");
+  const initialTab = new URLSearchParams(window.location.search).get("tab") || "upload";
+  const [tab, setTab] = useState(["upload", "map", "insights", "animal"].includes(initialTab) ? initialTab : "upload");
   const [posts, setPosts] = useState([]);
 
   const loadPosts = useCallback(async () => {
@@ -44,6 +46,7 @@ function App() {
             >
               {tab === "upload" && <HabitatUploadTab onSaved={() => { loadPosts(); setTab("map"); }} />}
               {tab === "map" && <HabitatMapTab posts={posts} onChanged={loadPosts} />}
+              {tab === "insights" && <StatsTab posts={posts} />}
               {tab === "animal" && <AnimalIdentifyTab />}
             </motion.div>
           </AnimatePresence>

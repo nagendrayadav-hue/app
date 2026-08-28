@@ -142,7 +142,7 @@ export const HabitatUploadTab = ({ onSaved }) => {
             </div>
 
             <p className="text-xs uppercase tracking-[0.2em] font-accent mb-2" style={{ color: "var(--emerald-bright)" }}>Health Summary</p>
-            <p data-testid="habitat-summary-text" className="font-body leading-relaxed mb-6" style={{ color: "var(--text-secondary)" }}>{result.summary}</p>
+            <p data-testid="habitat-summary-text" className="prose-notable mb-6" style={{ color: "var(--text-secondary)" }}>{result.summary}</p>
 
             <label className="text-xs uppercase tracking-[0.2em] font-accent mb-2 block" style={{ color: "var(--emerald-bright)" }}>Location Name</label>
             <input

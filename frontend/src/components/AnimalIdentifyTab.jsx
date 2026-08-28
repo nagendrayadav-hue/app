@@ -101,7 +101,7 @@ export const AnimalIdentifyTab = () => {
             <p className="italic font-display text-lg mb-6" style={{ color: "var(--text-muted)" }}>{result.scientific_name}</p>
 
             <p className="text-xs uppercase tracking-[0.2em] font-accent mb-2" style={{ color: "var(--emerald-bright)" }}>Habitat Loss</p>
-            <p data-testid="animal-habitat-loss-summary" className="font-body leading-relaxed mb-6" style={{ color: "var(--text-secondary)" }}>{result.habitat_loss_summary}</p>
+            <p data-testid="animal-habitat-loss-summary" className="prose-notable mb-6" style={{ color: "var(--text-secondary)" }}>{result.habitat_loss_summary}</p>
 
             {result.threats?.length > 0 && (
               <>

@@ -32,6 +32,13 @@ Single conservation-minded user logging habitat photos and identifying wildlife.
 - Animated score gauge, scan-line on analyze, pulsing map pins, glassmorphism header w/ sliding tab pill.
 - Tested: backend 8/8, frontend all tabs + CRUD + filters (iteration_1.json, 100%).
 
+## Implemented (2026-06, iteration 2)
+- Insights tab: average habitat health gauge + stat cards (total, median range, healthiest, most at risk) + tier distribution bars.
+- Share Snapshot: export any post as a branded PNG card (image, score, coords, mini-map) via html2canvas — Web Share API with download fallback.
+- Map redesigned with dotted world-map template (calibrated equirectangular pin projection).
+- Visual overhaul: Nikolas (Cormorant Garamond fallback) headings + Notable body font. Added ?tab= deep-linking.
+- Tested: frontend 100% (iteration_2.json).
+
 ## Backlog
 - P2: Transcode seed images to true base64 (currently Unsplash URLs in image_base64 field).
 - P2: Client-side axios timeout + retry UX for slow AI calls.
