@@ -1,0 +1,201 @@
+{
+  "app_name": "BioDash",
+  "archetype": "ORGANIC & SLEEK EARTHY TECH",
+  "theme": "Dark mode default with deep emerald, moss green, and warm beige/sand accents",
+  "typography": {
+    "fonts": {
+      "display_heading": "Nikolas, 'Cormorant Garamond', 'Playfair Display', serif",
+      "accent_heading": "LemonMilk, 'Outfit', 'Cabinet Grotesk', sans-serif",
+      "body": "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif",
+      "mono": "'JetBrains Mono', monospace"
+    },
+    "font_imports": [
+      "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;700;800&display=swap",
+      "@font-face declarations for custom Nikolas and LemonMilk local/CDN fallbacks in index.css"
+    ],
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight font-normal leading-[1.1]",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl font-serif tracking-tight font-medium",
+      "h3": "text-xl sm:text-2xl font-serif font-medium",
+      "h4": "text-lg sm:text-xl font-sans font-semibold tracking-wide uppercase text-amber-200/90",
+      "subheading": "text-sm sm:text-base font-sans tracking-widest uppercase text-emerald-300/80 font-medium",
+      "body": "text-base font-sans text-stone-300 leading-relaxed",
+      "small": "text-xs sm:text-sm font-sans text-stone-400"
+    }
+  },
+  "colors": {
+    "backgrounds": {
+      "primary": "#070E0B",
+      "secondary": "#0E1813",
+      "surface": "#14221B",
+      "surface_hover": "#1A2C23",
+      "overlay": "rgba(7, 14, 11, 0.85)"
+    },
+    "emerald": {
+      "deep": "#064E3B",
+      "primary": "#10B981",
+      "bright": "#34D399",
+      "light": "#A7F3D0",
+      "glow": "rgba(16, 185, 129, 0.25)"
+    },
+    "beige_sand": {
+      "primary": "#E6D5B8",
+      "warm": "#F4EAE1",
+      "golden": "#D4C5A9",
+      "muted": "#B3A286"
+    },
+    "score_badges": {
+      "critical_0_39": {
+        "text": "#FCA5A5",
+        "bg": "#450A0A",
+        "border": "#991B1B",
+        "pin": "#EF4444"
+      },
+      "moderate_40_69": {
+        "text": "#FDE047",
+        "bg": "#422006",
+        "border": "#854D0E",
+        "pin": "#F59E0B"
+      },
+      "healthy_70_100": {
+        "text": "#6EE7B7",
+        "bg": "#064E3B",
+        "border": "#047857",
+        "pin": "#10B981"
+      }
+    },
+    "text": {
+      "primary": "#F4EAE1",
+      "secondary": "#D4C5A9",
+      "muted": "#8C9E93",
+      "dark_accent": "#070E0B"
+    },
+    "borders": {
+      "subtle": "rgba(230, 213, 184, 0.12)",
+      "emerald_glow": "rgba(16, 185, 129, 0.3)",
+      "card": "rgba(255, 255, 255, 0.08)"
+    }
+  },
+  "layout_and_navigation": {
+    "structure": "Single-page hybrid dashboard with persistent header and three tabs: 'Upload Habitat', 'Interactive Map', 'Animal Analysis'",
+    "header": {
+      "style": "Sticky glassmorphism header (backdrop-blur-xl bg-[#070E0B]/80 border-b border-[#E6D5B8]/15 z-50)",
+      "brand_badge": "BioDash mark with glowing emerald leaf icon and beige serif typography",
+      "tab_switcher": "Segmented tab pill with sliding emerald active background and smooth layout animation"
+    },
+    "tab_1_upload": {
+      "title": "Habitat Health Evaluation",
+      "layout": "2-column bento grid (Left: Dropzone with camera icon & image preview; Right: Real-time/AI Score meter, health summary metrics, ecosystem breakdown, and 'Save Post' action)"
+    },
+    "tab_2_map": {
+      "title": "Global Habitat Map",
+      "layout": "Interactive 2D Leaflet or SVG vector world map styled in dark emerald tones, featuring color-coded pins based on score (0-100), filter by health tier, map legend, and side drawer/modal for saved habitat post details"
+    },
+    "tab_3_animal": {
+      "title": "Species Identification & Habitat Loss",
+      "layout": "Split view (Photo upload dropzone + AI Species Identification card with taxonomic rank, habitat loss risk meter, threat drivers, and conservation recommendations)"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-[#14221B]/70 border border-[#E6D5B8]/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+    "glow_effects": "drop-shadow-[0_0_12px_rgba(16,185,129,0.4)] and ambient emerald radial gradients in backgrounds",
+    "habitat_score_ring": "Animated circular SVG progress meter with gradient emerald stroke and score count-up effect",
+    "texture": "Subtle organic noise overlay or biophilic SVG contour background lines"
+  },
+  "image_urls": {
+    "hero_habitats": [
+      {
+        "url": "https://images.unsplash.com/photo-1674195649562-e44f30388acf?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Lush tropical rainforest canopy with mist"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1629494939320-e36ef741dc36?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Misty old-growth forest habitat"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1785788685428-9ea6f28c7258?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Solitary ancient tree in tropical biodiversity hotspot"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1765833667313-2dbad5069581?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Moss-covered forest ecosystem with rich canopy"
+      }
+    ],
+    "wildlife_species": [
+      {
+        "url": "https://images.unsplash.com/photo-1619476266550-bc9f04e57952?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Grizzly bear in coastal forest habitat"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1690971284880-fe1a22fbe361?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Orangutan close up in endangered rainforest"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1630693344578-13605bf27d10?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Wildlife portrait in natural habitat"
+      }
+    ]
+  },
+  "component_structure": {
+    "main_container": "/app/frontend/src/App.js",
+    "header": "/app/frontend/src/components/Header.jsx",
+    "tab_upload": "/app/frontend/src/components/HabitatUploadTab.jsx",
+    "tab_map": "/app/frontend/src/components/HabitatMapTab.jsx",
+    "tab_animal": "/app/frontend/src/components/AnimalIdentifyTab.jsx",
+    "score_gauge": "/app/frontend/src/components/HabitatScoreGauge.jsx",
+    "saved_post_card": "/app/frontend/src/components/SavedPostCard.jsx"
+  },
+  "motion": {
+    "tab_transitions": "Framer Motion AnimatePresence mode='wait' with opacity 0 to 1 and translateY(10px) to 0",
+    "card_hover": "Hover scale 1.02 with border glow shift to emerald",
+    "score_counter": "Smooth animated counter from 0 to target score",
+    "map_pin_pulse": "Continuous subtle pulsing animation on map pins"
+  },
+  "testing": {
+    "data_testid_requirements": [
+      "header-brand-logo",
+      "nav-tab-upload",
+      "nav-tab-map",
+      "nav-tab-animal",
+      "habitat-file-input",
+      "habitat-upload-dropzone",
+      "habitat-analyze-button",
+      "habitat-score-display",
+      "habitat-summary-text",
+      "habitat-save-post-button",
+      "habitat-location-input",
+      "map-container-2d",
+      "map-pin-item",
+      "map-post-filter-all",
+      "map-post-filter-healthy",
+      "map-post-filter-critical",
+      "animal-file-input",
+      "animal-upload-dropzone",
+      "animal-identify-button",
+      "animal-result-card",
+      "animal-species-name",
+      "animal-habitat-loss-summary",
+      "saved-post-card-item"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Ensure the fonts Nikolas (serif heading fallback Cormorant Garamond / Playfair Display) and LemonMilk (accent display fallback Outfit / Cabinet Grotesk) are cleanly loaded in src/index.css or public/index.html.",
+    "Implement real client-side photo processing with simulated or OpenAI/mock AI habitat scoring and animal identification when uploaded.",
+    "Include pre-seeded sample data for saved habitat posts with geographic coordinates (latitude/longitude), image, score, location name, and timestamp so the Map tab looks populated and vibrant out of the box.",
+    "Allow the user to add new saved posts from the Upload tab, which immediately persists in LocalStorage and updates the Map pins dynamically.",
+    "Map implementation should use Leaflet (react-leaflet or raw Leaflet script) or custom interactive SVG canvas with zoom, pan, custom colored marker icons corresponding to scores (Green >= 70, Yellow 40-69, Red < 40), popups, and detail view modal.",
+    "Animal tab must accept user image uploads, show an animated scanning line, identify animal species, display habitat loss status (e.g. Vulnerable / Endangered), and present key threats.",
+    "Ensure every interactive element has proper `data-testid` attributes as listed in the guidelines.",
+    "Strictly follow the dark emerald and warm sand color palette and avoid pure white or plain black containers."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphic effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition (e.g. transition: all). Always add transitions for specific interactive elements.",
+    "You MUST NOT center align the app container. Maintain left-aligned natural reading flow.",
+    "Every interaction needs micro-animations - hover states, transitions, map pin popups.",
+    "Containers with borders must have internal padding (p-6 or p-8) to prevent text collision.",
+    "Ensure high text contrast against dark backgrounds matching APCA standards."
+  ]
+}
